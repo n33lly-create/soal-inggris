@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Urutkan Kalimat Bahasa Inggris</title>
+  <style>
+    body {
+      background-color: #001f3f; /* biru tua */
+      font-family: Arial, sans-serif;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #87CEFA; /* biru muda */
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .word {
+      background-color: white;
+      color: black;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: grab;
+      font-weight: bold;
+    }
+
+    .drop-area {
+      min-height: 80px;
+      background-color: white;
+      color: black;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .btn-nav {
+      background-color: #0066cc;
+      color: white;
+    }
+
+    .btn-check {
+      background-color: green;
+      color: white;
+    }
+
+    .btn-reset {
+      background-color: red;
+      color: white;
+    }
+
+    .feedback {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Urutkan Kata Menjadi Kalimat Bahasa Inggris</h2>
+
+    <div id="word-bank" class="word-bank"></div>
+
+    <div id="drop-area" class="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+
+    <div class="controls">
+      <button class="btn-nav" onclick="previous()">Previous</button>
+      <button class="btn-nav" onclick="next()">Next</button>
+      <button class="btn-check" onclick="checkAnswer()">Hasil</button>
+      <button class="btn-reset" onclick="resetCurrent()">Reset</button>
+    </div>
+
+    <div id="feedback" class="feedback"></div>
+  </div>
+
+  <script>
+    const sentences = [
+      {
+        words: ["I", "am", "going", "to", "the", "market"],
+        answer: "I am going to the market"
+      },
+      {
+        words: ["I", "will", "go", "to", "the", "mountain"],
+        answer: "I will go to the mountain"
+      },
+      {
+        words: ["I", "will", "play", "football", "tomorrow"],
+        answer: "I will play football tomorrow"
+      },
+      {
+        words: ["I", "am", "speaking", "english"],
+        answer: "I am speaking english"
+      },
+      {
+        words: ["I", "went", "to", "the", "zoo", "yesterday"],
+        answer: "I went to the zoo yesterday"
+      }
+    ];
+
+    let currentIndex = 0;
+
+    function loadSentence(index) {
+      const wordBank = document.getElementById("word-bank");
+      const dropArea = document.getElementById("drop-area");
+      const feedback = document.getElementById("feedback");
+
+      wordBank.innerHTML = "";
+      dropArea.innerHTML = "";
+      feedback.textContent = "";
+
+      const shuffled = [...sentences[index].words].sort(() => 0.5 - Math.random());
+
+      shuffled.forEach((word, i) => {
+        const span = document.createElement("span");
+        span.textContent = word;
+        span.className = "word";
+        span.draggable = true;
+        span.ondragstart = (event) => {
+          event.dataTransfer.setData("text/plain", word);
+          span.classList.add("dragged");
+        };
+        span.id = "word-" + i;
+        wordBank.appendChild(span);
+      });
+    }
+
+    function allowDrop(event) {
+      event.preventDefault();
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      const word = event.dataTransfer.getData("text/plain");
+
+      const wordElements = document.querySelectorAll(".word");
+      wordElements.forEach(el => {
+        if (el.textContent === word) {
+          el.remove();
+        }
+      });
+
+      const span = document.createElement("span");
+      span.textContent = word;
+      span.className = "word";
+      document.getElementById("drop-area").appendChild(span);
+    }
+
+    function checkAnswer() {
+      const droppedWords = Array.from(document.getElementById("drop-area").children).map(el => el.textContent);
+      const joined = droppedWords.join(" ");
+      const correct = sentences[currentIndex].answer;
+
+      const feedback = document.getElementById("feedback");
+      if (joined === correct) {
+        feedback.textContent = "Hebat jawaban anda benar";
+        feedback.style.color = "lime";
+      } else {
+        feedback.textContent = "Ma’af jawaban anda salah, ulangi lagi";
+        feedback.style.color = "orange";
+      }
+    }
+
+    function resetCurrent() {
+      loadSentence(currentIndex);
+    }
+
+    function next() {
+      if (currentIndex < sentences.length - 1) {
+        currentIndex++;
+        loadSentence(currentIndex);
+      }
+    }
+
+    function previous() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        loadSentence(currentIndex);
+      }
+    }
+
+    // Initial Load
+    loadSentence(currentIndex);
+  </script>
+</body>
+</html>
